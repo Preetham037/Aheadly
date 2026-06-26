@@ -1,0 +1,28 @@
+# Node
+node_modules/
+.pnp
+.pnp.js
+coverage/
+.next/
+out/
+build/
+dist/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+.env
+
+# MacOS
+.DS_Store
+
+# Docker
+.docker/
+
+# Environment
+.env.local
+.env.*.local

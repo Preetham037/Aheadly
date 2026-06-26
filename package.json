@@ -1,0 +1,15 @@
+{
+  "name": "aheadly-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "docker-compose up"
+  },
+  "devDependencies": {
+    "prettier": "^3.0.0"
+  }
+}
