@@ -38,7 +38,7 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-6">
             <Link href="#features" className="text-sm text-gray-400 hover:text-white transition-colors">Features</Link>
-            <Link href="/dashboard">
+            <Link href="/login">
               <Button className="rounded-full bg-white text-black hover:bg-gray-200 font-medium px-6">
                 Go to Dashboard
               </Button>
@@ -159,21 +159,6 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6">
 
           {/* Trusted By */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="pt-16 border-t border-white/5 text-center"
-          >
-            <p className="text-sm text-gray-500 font-medium mb-8 uppercase tracking-widest">Powered by world-class infrastructure</p>
-            <div className="flex flex-wrap justify-center gap-12 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
-              <div className="text-xl font-bold font-mono text-white flex items-center gap-2"><div className="w-6 h-6 bg-blue-500 rounded-sm" /> Supabase</div>
-              <div className="text-xl font-bold font-sans text-white flex items-center gap-2"><div className="w-6 h-6 bg-black border border-white/20 rounded-full flex items-center justify-center"><div className="w-3 h-3 bg-white rounded-full" /></div> Next.js</div>
-              <div className="text-xl font-bold text-white flex items-center gap-2"><Sparkles className="w-6 h-6 text-purple-500" /> Gemini AI</div>
-              <div className="text-xl font-bold text-white flex items-center gap-2"><div className="w-6 h-6 bg-green-500 rounded-full" /> FastAPI</div>
-            </div>
-          </motion.div>
-
           {/* Features */}
           <motion.div
             id="features"
@@ -225,7 +210,7 @@ export default function Home() {
             <div className="relative z-10">
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">Ready to get ahead?</h2>
               <p className="text-xl text-purple-200/70 mb-10 max-w-xl mx-auto">Join thousands of high-performers who have stopped missing deadlines and started finishing early.</p>
-              <Link href="/dashboard">
+              <Link href="/login">
                 <Button size="lg" className="rounded-full bg-white text-black hover:bg-gray-200 h-14 px-10 text-lg font-medium shadow-2xl">
                   Start Using Aheadly Free
                 </Button>
@@ -245,9 +230,8 @@ export default function Home() {
           </div>
           <p className="text-sm text-gray-500">Built for VIBE2SHIP Hackathon 2026. All rights reserved.</p>
           <div className="flex gap-6 text-sm text-gray-400">
-            <Link href="#" className="hover:text-white">Privacy</Link>
-            <Link href="#" className="hover:text-white">Terms</Link>
-            <Link href="#" className="hover:text-white">Twitter</Link>
+            <Link href="/privacy" className="hover:text-white">Privacy</Link>
+            <Link href="/terms" className="hover:text-white">Terms</Link>
           </div>
         </div>
       </footer>

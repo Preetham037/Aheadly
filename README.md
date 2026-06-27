@@ -1,12 +1,20 @@
 # Aheadly - Plan Smarter. Finish Earlier.
 
-Aheadly is an AI-powered productivity companion built for the VIBE2SHIP Hackathon. It proactively helps users complete work before deadlines instead of simply reminding them.
+Aheadly is an **AI-powered productivity companion** built for the VIBE2SHIP Hackathon. It proactively helps users complete work before deadlines instead of simply reminding them. Moving beyond traditional to-do lists, Aheadly acts as an autonomous agent that understands your tasks, prioritizes them intelligently, and schedules them into your life.
 
-## Tech Stack
-- **Frontend**: Next.js 15, TypeScript, TailwindCSS, shadcn/ui, Framer Motion
-- **Backend**: FastAPI, PostgreSQL, SQLAlchemy, Redis
-- **AI**: Google Gemini 2.5 Flash, LangChain
-- **Deployment**: Docker, Google Cloud Run
+## ✨ Key Features (Hackathon Highlights)
+
+- 🧠 **Smart Extract (NLP)**: Paste raw text (emails, syllabus, random notes), and our Gemini AI automatically extracts the task, deadline, and urgency score to build your to-do list instantly.
+- 🎙️ **Voice-Enabled AI Chat**: Speak naturally to the Aheadly Assistant using the built-in animated voice visualizer. Ask it to "find time for my physics assignment" and it understands context.
+- 📅 **Google Calendar Integration**: Secure OAuth 2.0 sync. The AI reads your free time blocks and automatically schedules tasks when you actually have time to do them.
+- 🔥 **Gamified Productivity**: Track your "Productivity Score" and daily "Streak Days" to build lasting habits.
+- 🎨 **Premium UI/UX**: Designed with dark-mode glassmorphism, fluid micro-animations (Framer Motion), and a dynamic frequency visualizer for voice interactions.
+
+## 🛠 Tech Stack
+- **Frontend**: Next.js 15 (App Router), TypeScript, TailwindCSS, Framer Motion, lucide-react
+- **Backend**: FastAPI, PostgreSQL, SQLAlchemy, OAuthlib
+- **AI**: Google Gemini 2.5 Flash API
+- **Deployment**: Local dev (Uvicorn + Next dev server)
 
 ## Architecture
 

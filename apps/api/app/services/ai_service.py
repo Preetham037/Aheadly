@@ -3,27 +3,7 @@ import json
 from pydantic import BaseModel, Field
 from google import genai
 from google.genai import types
-from app.services.google_calendar_service import calendar_service
-
-def schedule_google_calendar_event(title: str, start_time: str, end_time: str) -> str:
-    """
-    Schedules an event on the user's Google Calendar.
-    
-    Args:
-        title: The title of the event or task.
-        start_time: The start time (e.g. '2026-06-27 10:00 AM').
-        end_time: The end time (e.g. '2026-06-27 12:00 PM').
-    """
-    return calendar_service.schedule_event(title, start_time, end_time)
-
-def get_free_google_calendar_time(date_str: str) -> str:
-    """
-    Fetches the free time slots on the user's Google Calendar for a specific date.
-    
-    Args:
-        date_str: The date to check for free time (e.g. '2026-06-27' or 'today').
-    """
-    return calendar_service.get_free_time_slots(date_str)
+from app.services.google_calendar_service import GoogleCalendarService
 
 class ExtractedTaskData(BaseModel):
     title: str = Field(description="The name of the task")
@@ -58,7 +38,6 @@ class AIService:
                 temperature=0.1,
             ),
         )
-        # Parse the structured JSON response
         data = json.loads(response.text)
         return ExtractedTaskData(**data)
 
@@ -70,11 +49,33 @@ class AIService:
         )
         return response.text
 
-    def chat_response(self, user_query: str, context: str) -> str:
+    def chat_response(self, user_query: str, context: str, refresh_token: str = None) -> str:
         prompt = f"System Context: {context}\n\nUser Message: {user_query}"
         
-        # We use a chat session to allow the SDK to automatically execute tool calls
-        # and return the final natural language response to the user.
+        # Instantiate real calendar service with user's refresh token
+        calendar_service = GoogleCalendarService(refresh_token=refresh_token)
+
+        # Create wrapper functions so Gemini can call them without passing user ID
+        def schedule_google_calendar_event(title: str, start_time: str, end_time: str) -> str:
+            """
+            Schedules an event on the user's Google Calendar.
+            
+            Args:
+                title: The title of the event or task.
+                start_time: The start time (e.g. '2026-06-27T10:00:00Z').
+                end_time: The end time (e.g. '2026-06-27T12:00:00Z').
+            """
+            return calendar_service.schedule_event(title, start_time, end_time)
+
+        def get_free_google_calendar_time(date_str: str) -> str:
+            """
+            Fetches the free time slots on the user's Google Calendar for a specific date.
+            
+            Args:
+                date_str: The date to check for free time (e.g. 'today' or '2026-06-27').
+            """
+            return calendar_service.get_free_time_slots(date_str)
+
         chat = self.client.chats.create(
             model='gemini-2.5-flash',
             config=types.GenerateContentConfig(

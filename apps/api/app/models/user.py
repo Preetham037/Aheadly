@@ -12,6 +12,7 @@ class User(Base):
     password_hash = Column(String, nullable=True) # Nullable for OAuth users
     full_name = Column(String, nullable=True)
     google_id = Column(String, unique=True, index=True, nullable=True)
+    google_refresh_token = Column(String, nullable=True)  # Stores OAuth refresh token
     
     productivity_score = Column(Float, default=0.0)
     streak_days = Column(Integer, default=0)

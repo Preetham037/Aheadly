@@ -21,7 +21,7 @@ async def chat_with_ai(
     request: ChatRequest,
     current_user: User = Depends(get_current_user)
 ):
-    response = ai_service.chat_response(request.query, request.context)
+    response = ai_service.chat_response(request.query, request.context, current_user.google_refresh_token)
     return {"response": response}
 
 @router.post("/parse-task", response_model=ExtractedTaskData)

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Sparkles, Calendar, Plus, CheckCircle2, Circle, Clock, Flame } from "lucide-react";
+import { Sparkles, Calendar, Plus, CheckCircle2, Circle, Clock, Flame, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { LogoIcon } from "@/components/LogoIcon";
 
@@ -31,6 +31,7 @@ export default function Dashboard() {
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [loading, setLoading] = useState(true);
   const [streakDays, setStreakDays] = useState(0);
+  const [userName, setUserName] = useState("User");
 
   // AI Parse State
   const [parseText, setParseText] = useState("");
@@ -46,6 +47,7 @@ export default function Dashboard() {
         setToken(data.access_token);
         fetchTasks(data.access_token);
         fetchStats(data.access_token);
+        fetchUser(data.access_token);
       } catch (e) {
         console.error("Failed to fetch demo token", e);
         setLoading(false);
@@ -77,6 +79,20 @@ export default function Dashboard() {
       setStreakDays(data.streak_days ?? 0);
     } catch (e) {
       console.error("Failed to fetch stats", e);
+    }
+  };
+
+  const fetchUser = async (authToken: string) => {
+    try {
+      const res = await fetch("http://localhost:8000/api/v1/auth/me", {
+        headers: { "Authorization": `Bearer ${authToken}` }
+      });
+      const data = await res.json();
+      if (data.full_name) {
+        setUserName(data.full_name);
+      }
+    } catch (e) {
+      console.error("Failed to fetch user", e);
     }
   };
 
@@ -134,6 +150,21 @@ export default function Dashboard() {
     }
   };
 
+  const handleDeleteTask = async (taskId: string) => {
+    if (!token) return;
+    setTasks(tasks.filter(t => t.id !== taskId));
+    try {
+      await fetch(`http://localhost:8000/api/v1/tasks/${taskId}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      fetchStats(token);
+    } catch (e) {
+      console.error("Failed to delete task", e);
+      fetchTasks(token); // refetch if failed
+    }
+  };
+
   const completedCount = tasks.filter(t => t.status === "DONE").length;
   const pendingCount = tasks.length - completedCount;
   const score = tasks.length === 0 ? 0 : Math.round((completedCount / tasks.length) * 100);
@@ -176,7 +207,12 @@ export default function Dashboard() {
               <Flame className="w-3 h-3 text-orange-400" />
               <span>Streak: {streakDays} {streakDays === 1 ? 'Day' : 'Days'}</span>
             </div>
-            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 border-2 border-background" />
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-medium text-white">{userName}</span>
+              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-blue-500 border-2 border-background flex items-center justify-center text-xs font-bold text-white shadow-lg shadow-purple-500/20">
+                {userName.charAt(0)}
+              </div>
+            </div>
           </div>
         </div>
       </header>
@@ -350,6 +386,9 @@ export default function Dashboard() {
                             <Calendar className="w-3.5 h-3.5" />
                           </Button>
                         </Link>
+                        <Button size="icon" variant="ghost" className="h-7 w-7 text-gray-400 hover:text-red-400 hover:bg-red-500/20 rounded-full" onClick={(e) => { e.stopPropagation(); handleDeleteTask(task.id); }}>
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
                       </div>
                     </motion.div>
                   ))}
@@ -368,9 +407,32 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                   <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/20 text-sm">
-                     <p className="text-blue-200 font-medium mb-1">Time Block Available</p>
-                     <p className="text-blue-200/70 text-xs">You have 2 hours free before your next meeting. Good time to tackle High Priority tasks.</p>
+                   <div className="p-3 rounded-lg bg-purple-500/10 border border-purple-500/20 text-sm">
+                     <div className="flex items-center gap-2 mb-2">
+                       <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Google_Calendar_icon_%282020%29.svg" alt="Google Calendar" className="w-5 h-5" />
+                       <p className="text-purple-200 font-medium">Google Calendar</p>
+                     </div>
+                     <p className="text-purple-200/70 text-xs mb-3">Sync your calendar to let the AI agent schedule tasks automatically.</p>
+                     <Button 
+                       size="sm"
+                       className="w-full bg-purple-600 hover:bg-purple-700 text-white" 
+                       onClick={async () => {
+                         if (!token) return;
+                         try {
+                           const res = await fetch("http://localhost:8000/api/v1/auth/google/login", {
+                             headers: { "Authorization": `Bearer ${token}` }
+                           });
+                           const data = await res.json();
+                           if (data.authorization_url) {
+                             window.location.href = data.authorization_url;
+                           }
+                         } catch (e) {
+                           console.error("Failed to initiate Google Login", e);
+                         }
+                       }}
+                     >
+                       Connect Calendar
+                     </Button>
                    </div>
                 </div>
               </CardContent>
