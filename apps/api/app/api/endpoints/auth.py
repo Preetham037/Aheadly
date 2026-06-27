@@ -76,3 +76,31 @@ async def google_auth():
     # Typically would receive an ID token from frontend, verify it using Google library,
     # find or create the user, and return a JWT access_token.
     return {"message": "Google OAuth endpoint placeholder. Please pass ID token."}
+
+@router.post("/demo-login", response_model=Token)
+async def demo_login(db: AsyncSession = Depends(get_db)):
+    """
+    Hackathon helper: Instantly logs in as a demo user without a password.
+    Creates the demo user if it doesn't exist.
+    """
+    email = "demo@aheadly.app"
+    result = await db.execute(select(User).where(User.email == email))
+    user = result.scalars().first()
+    
+    if not user:
+        user = User(
+            email=email,
+            password_hash=get_password_hash("demo_password"),
+            full_name="Demo User"
+        )
+        db.add(user)
+        await db.commit()
+        await db.refresh(user)
+        
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 24 * 7) # 1 week for demo
+    return {
+        "access_token": create_access_token(
+            user.id, expires_delta=access_token_expires
+        ),
+        "token_type": "bearer",
+    }

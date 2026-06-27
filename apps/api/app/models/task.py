@@ -40,8 +40,8 @@ class Task(Base):
     category_id = Column(String, ForeignKey("categories.id"), nullable=True)
     category = relationship("Category", back_populates="tasks")
     
-    subtasks = relationship("Subtask", back_populates="parent_task", cascade="all, delete-orphan")
-    calendar_events = relationship("CalendarEvent", back_populates="task")
+    subtasks = relationship("Subtask", back_populates="parent_task", cascade="all, delete-orphan", lazy="selectin")
+    calendar_events = relationship("CalendarEvent", back_populates="task", lazy="selectin")
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())

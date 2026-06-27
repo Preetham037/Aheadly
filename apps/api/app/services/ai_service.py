@@ -1,11 +1,29 @@
 import os
-from langchain_core.prompts import PromptTemplate
-from langchain_google_genai import ChatGoogleGenerativeAI
+import json
 from pydantic import BaseModel, Field
-from datetime import datetime
+from google import genai
+from google.genai import types
+from app.services.google_calendar_service import calendar_service
 
-# Assuming GEMINI_API_KEY is available in the environment variables
-# If not, this service will raise an error during instantiation or execution
+def schedule_google_calendar_event(title: str, start_time: str, end_time: str) -> str:
+    """
+    Schedules an event on the user's Google Calendar.
+    
+    Args:
+        title: The title of the event or task.
+        start_time: The start time (e.g. '2026-06-27 10:00 AM').
+        end_time: The end time (e.g. '2026-06-27 12:00 PM').
+    """
+    return calendar_service.schedule_event(title, start_time, end_time)
+
+def get_free_google_calendar_time(date_str: str) -> str:
+    """
+    Fetches the free time slots on the user's Google Calendar for a specific date.
+    
+    Args:
+        date_str: The date to check for free time (e.g. '2026-06-27' or 'today').
+    """
+    return calendar_service.get_free_time_slots(date_str)
 
 class ExtractedTaskData(BaseModel):
     title: str = Field(description="The name of the task")
@@ -15,34 +33,56 @@ class ExtractedTaskData(BaseModel):
     priority: str = Field(description="Priority: LOW, MEDIUM, HIGH, or URGENT")
     risk_score: float = Field(description="Risk score between 0.0 and 1.0 indicating chance of missing deadline")
 
+from dotenv import load_dotenv
+load_dotenv("../../.env")
+load_dotenv(".env") # fallback
+
 class AIService:
     def __init__(self):
-        # We use gemini-2.5-flash as requested by the user
-        self.llm = ChatGoogleGenerativeAI(
-            model="gemini-2.5-flash",
-            google_api_key=os.environ.get("GEMINI_API_KEY", "dummy_key")
-        )
-        self.structured_llm = self.llm.with_structured_output(ExtractedTaskData)
+        # We use gemini-2.5-flash natively via google-genai
+        self.api_key = os.environ.get("GEMINI_API_KEY")
+        self.client = genai.Client(api_key=self.api_key)
 
     def extract_task_details(self, user_input: str) -> ExtractedTaskData:
-        prompt_template = """
+        prompt = f"""
         You are an AI Productivity Assistant for the 'Aheadly' platform.
         Extract task details from the following user input:
         "{user_input}"
         """
-        
-        prompt = PromptTemplate.from_template(prompt_template)
-        formatted_prompt = prompt.format(user_input=user_input)
-        
-        return self.structured_llm.invoke(formatted_prompt)
+        response = self.client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                response_mime_type="application/json",
+                response_schema=ExtractedTaskData,
+                temperature=0.1,
+            ),
+        )
+        # Parse the structured JSON response
+        data = json.loads(response.text)
+        return ExtractedTaskData(**data)
 
     def generate_daily_schedule(self, tasks: list, calendar_events: list, working_hours: str) -> str:
-        # Placeholder for Smart Daily Planner algorithm
         prompt = f"Plan a schedule for these tasks: {tasks} avoiding {calendar_events} within {working_hours}"
-        return self.llm.invoke(prompt).content
+        response = self.client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt,
+        )
+        return response.text
 
     def chat_response(self, user_query: str, context: str) -> str:
-        prompt = f"Context: {context}\nUser: {user_query}\nAI Assistant:"
-        return self.llm.invoke(prompt).content
+        prompt = f"System Context: {context}\n\nUser Message: {user_query}"
+        
+        # We use a chat session to allow the SDK to automatically execute tool calls
+        # and return the final natural language response to the user.
+        chat = self.client.chats.create(
+            model='gemini-2.5-flash',
+            config=types.GenerateContentConfig(
+                tools=[schedule_google_calendar_event, get_free_google_calendar_time],
+                temperature=0.1,
+            )
+        )
+        response = chat.send_message(prompt)
+        return response.text
 
 ai_service = AIService()

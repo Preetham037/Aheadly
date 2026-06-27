@@ -14,6 +14,8 @@ class User(Base):
     google_id = Column(String, unique=True, index=True, nullable=True)
     
     productivity_score = Column(Float, default=0.0)
+    streak_days = Column(Integer, default=0)
+    last_completed_date = Column(DateTime(timezone=True), nullable=True)
     
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
