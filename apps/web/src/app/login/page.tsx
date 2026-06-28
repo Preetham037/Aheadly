@@ -17,26 +17,7 @@ export default function LoginPage() {
 
   const handleManualLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    setError("");
-
-    try {
-      // For this demo/hackathon, we'll just log into the demo account to keep the seamless experience
-      const res = await fetch("http://localhost:8000/api/v1/auth/demo-login", {
-        method: "POST",
-      });
-      
-      if (!res.ok) throw new Error("Login failed");
-      
-      const data = await res.json();
-      // Store token (the dashboard component actually handles this on mount as well)
-      localStorage.setItem("token", data.access_token);
-      router.push("/dashboard");
-    } catch (err) {
-      setError("Invalid credentials. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
+    setError("Invalid credentials. Please use 'Continue with Google' for this beta.");
   };
 
   const handleGoogleLogin = () => {
@@ -53,7 +34,7 @@ export default function LoginPage() {
         <div className="absolute top-[40%] -right-[10%] w-[40%] h-[40%] rounded-full bg-blue-500/10 blur-[120px]" />
       </div>
 
-      <header className="absolute top-0 w-full z-10 px-6 py-6">
+      <header className="absolute top-0 w-full z-50 px-6 py-6">
         <Link href="/" className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
           <ArrowLeft className="w-4 h-4" />
           <span className="text-sm font-medium">Back to Home</span>

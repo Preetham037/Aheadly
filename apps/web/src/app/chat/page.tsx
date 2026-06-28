@@ -123,11 +123,12 @@ export default function ChatPage() {
 
   useEffect(() => {
     const init = async () => {
-      try {
-        const res = await fetch("http://localhost:8000/api/v1/auth/demo-login", { method: "POST" });
-        const data = await res.json();
-        setToken(data.access_token);
-      } catch (e) { console.error(e); }
+      const activeToken = localStorage.getItem("token");
+      if (!activeToken) {
+         window.location.href = "/login";
+         return;
+      }
+      setToken(activeToken);
     };
     init();
   }, []);
@@ -153,6 +154,11 @@ export default function ChatPage() {
     setMessages(prev => [...prev, userMsg]);
     setInput("");
     setIsLoading(true);
+    
+    // Add empty assistant message container
+    const assistantMsgId = (Date.now() + 1).toString();
+    setMessages(prev => [...prev, { id: assistantMsgId, role: "assistant", content: "" }]);
+    
     try {
       const res = await fetch("http://localhost:8000/api/v1/ai/chat", {
         method: "POST",
@@ -162,14 +168,28 @@ export default function ChatPage() {
       if (!res.ok) {
         throw new Error("Failed to communicate with AI");
       }
-      const data = await res.json();
-      setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), role: "assistant", content: data.response }]);
+      setIsLoading(false); // Stop loading animation since stream is starting
+      
+      const reader = res.body?.getReader();
+      const decoder = new TextDecoder("utf-8");
+      
+      if (reader) {
+        let isDone = false;
+        while (!isDone) {
+          const { done, value } = await reader.read();
+          isDone = done;
+          if (value) {
+            const chunkText = decoder.decode(value, { stream: true });
+            setMessages(prev => prev.map(m => 
+              m.id === assistantMsgId ? { ...m, content: m.content + chunkText } : m
+            ));
+          }
+        }
+      }
     } catch {
-      setMessages(prev => [...prev, {
-        id: (Date.now() + 1).toString(), role: "assistant",
-        content: "Sorry, I ran into a network error. Please try again."
-      }]);
-    } finally {
+      setMessages(prev => prev.map(m => 
+        m.id === assistantMsgId ? { ...m, content: "Sorry, I ran into a network error. Please try again." } : m
+      ));
       setIsLoading(false);
     }
   }, [token]);

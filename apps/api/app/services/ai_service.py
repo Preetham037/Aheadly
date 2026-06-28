@@ -49,7 +49,7 @@ class AIService:
         )
         return response.text
 
-    def chat_response(self, user_query: str, context: str, refresh_token: str = None) -> str:
+    def chat_response_stream(self, user_query: str, context: str, refresh_token: str = None):
         prompt = f"System Context: {context}\n\nUser Message: {user_query}"
         
         # Instantiate real calendar service with user's refresh token
@@ -83,7 +83,9 @@ class AIService:
                 temperature=0.1,
             )
         )
-        response = chat.send_message(prompt)
-        return response.text
+        response = chat.send_message_stream(prompt)
+        for chunk in response:
+            if chunk.text:
+                yield chunk.text
 
 ai_service = AIService()

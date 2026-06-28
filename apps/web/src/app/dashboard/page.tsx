@@ -32,24 +32,48 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [streakDays, setStreakDays] = useState(0);
   const [userName, setUserName] = useState("User");
+  const [isGoogleConnected, setIsGoogleConnected] = useState(false);
 
   // AI Parse State
   const [parseText, setParseText] = useState("");
   const [isParsing, setIsParsing] = useState(false);
   const [parsedPreview, setParsedPreview] = useState<ParsedTaskPreview | null>(null);
 
-  // Auto login and fetch tasks on mount
+  // Enforce login and fetch tasks on mount
   useEffect(() => {
     const init = async () => {
+      // 1. Check for token in URL (from Google redirect)
+      const urlToken = new URLSearchParams(window.location.search).get("token");
+      let activeToken = urlToken;
+      
+      if (activeToken) {
+         localStorage.setItem("token", activeToken);
+         // Clean up URL but keep google_connected for the UI check below
+         const newUrl = window.location.pathname + "?google_connected=true";
+         window.history.replaceState({}, document.title, newUrl);
+      } else {
+         activeToken = localStorage.getItem("token");
+      }
+      
+      if (!activeToken) {
+         window.location.href = "/login";
+         return;
+      }
+      
       try {
-        const res = await fetch("http://localhost:8000/api/v1/auth/demo-login", { method: "POST" });
-        const data = await res.json();
-        setToken(data.access_token);
-        fetchTasks(data.access_token);
-        fetchStats(data.access_token);
-        fetchUser(data.access_token);
+        setToken(activeToken);
+        fetchTasks(activeToken);
+        fetchStats(activeToken);
+        fetchUser(activeToken);
+
+        // Check if redirected from Google OAuth
+        const connected = new URLSearchParams(window.location.search).get("google_connected");
+        if (connected === "true") {
+          setIsGoogleConnected(true);
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
       } catch (e) {
-        console.error("Failed to fetch demo token", e);
+        console.error("Failed to fetch user data", e);
         setLoading(false);
       }
     };
@@ -413,26 +437,34 @@ export default function Dashboard() {
                        <p className="text-purple-200 font-medium">Google Calendar</p>
                      </div>
                      <p className="text-purple-200/70 text-xs mb-3">Sync your calendar to let the AI agent schedule tasks automatically.</p>
-                     <Button 
-                       size="sm"
-                       className="w-full bg-purple-600 hover:bg-purple-700 text-white" 
-                       onClick={async () => {
-                         if (!token) return;
-                         try {
-                           const res = await fetch("http://localhost:8000/api/v1/auth/google/login", {
-                             headers: { "Authorization": `Bearer ${token}` }
-                           });
-                           const data = await res.json();
-                           if (data.authorization_url) {
-                             window.location.href = data.authorization_url;
+                     
+                     {isGoogleConnected ? (
+                       <div className="w-full py-2 bg-green-500/20 border border-green-500/30 rounded-md flex items-center justify-center gap-2 text-green-400 font-medium">
+                         <CheckCircle2 className="w-4 h-4" />
+                         Connected
+                       </div>
+                     ) : (
+                       <Button 
+                         size="sm"
+                         className="w-full bg-purple-600 hover:bg-purple-700 text-white" 
+                         onClick={async () => {
+                           if (!token) return;
+                           try {
+                             const res = await fetch("http://localhost:8000/api/v1/auth/google/login", {
+                               headers: { "Authorization": `Bearer ${token}` }
+                             });
+                             const data = await res.json();
+                             if (data.authorization_url) {
+                               window.location.href = data.authorization_url;
+                             }
+                           } catch (e) {
+                             console.error("Failed to initiate Google Login", e);
                            }
-                         } catch (e) {
-                           console.error("Failed to initiate Google Login", e);
-                         }
-                       }}
-                     >
-                       Connect Calendar
-                     </Button>
+                         }}
+                       >
+                         Connect Calendar
+                       </Button>
+                     )}
                    </div>
                 </div>
               </CardContent>

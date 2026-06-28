@@ -16,13 +16,15 @@ class ChatResponse(BaseModel):
 class ParseTaskRequest(BaseModel):
     user_input: str
 
-@router.post("/chat", response_model=ChatResponse)
+from fastapi.responses import StreamingResponse
+
+@router.post("/chat")
 async def chat_with_ai(
     request: ChatRequest,
     current_user: User = Depends(get_current_user)
 ):
-    response = ai_service.chat_response(request.query, request.context, current_user.google_refresh_token)
-    return {"response": response}
+    stream = ai_service.chat_response_stream(request.query, request.context, current_user.google_refresh_token)
+    return StreamingResponse(stream, media_type="text/plain")
 
 @router.post("/parse-task", response_model=ExtractedTaskData)
 async def parse_task_from_text(
