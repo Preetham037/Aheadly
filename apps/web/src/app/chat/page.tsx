@@ -160,7 +160,8 @@ export default function ChatPage() {
     setMessages(prev => [...prev, { id: assistantMsgId, role: "assistant", content: "" }]);
     
     try {
-      const res = await fetch("http://localhost:8000/api/v1/ai/chat", {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      const res = await fetch(`${apiUrl}/api/v1/ai/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({ query: text })

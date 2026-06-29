@@ -23,7 +23,8 @@ export default function LoginPage() {
   const handleGoogleLogin = () => {
     setIsLoading(true);
     // Redirect directly to our backend's new Google login flow endpoint
-    window.location.href = "http://localhost:8000/api/v1/auth/google/login-flow";
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    window.location.href = `${apiUrl}/api/v1/auth/google/login-flow`;
   };
 
   return (
@@ -120,7 +121,7 @@ export default function LoginPage() {
           </div>
           
           <p className="text-center text-sm text-gray-500 mt-8">
-            Don't have an account? <a href="http://localhost:8000/api/v1/auth/google/login-flow" className="text-purple-400 hover:text-purple-300 font-medium">Sign up with Google</a>
+            Don't have an account? <a href={`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/v1/auth/google/login-flow`} className="text-purple-400 hover:text-purple-300 font-medium">Sign up with Google</a>
           </p>
         </motion.div>
       </div>

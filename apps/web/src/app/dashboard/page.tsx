@@ -82,7 +82,7 @@ export default function Dashboard() {
 
   const fetchTasks = async (authToken: string) => {
     try {
-      const res = await fetch("http://localhost:8000/api/v1/tasks/", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/v1/tasks/`, {
         headers: { "Authorization": `Bearer ${authToken}` }
       });
       const data = await res.json();
@@ -96,7 +96,7 @@ export default function Dashboard() {
 
   const fetchStats = async (authToken: string) => {
     try {
-      const res = await fetch("http://localhost:8000/api/v1/tasks/stats/me", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/v1/tasks/stats/me`, {
         headers: { "Authorization": `Bearer ${authToken}` }
       });
       const data = await res.json();
@@ -108,7 +108,7 @@ export default function Dashboard() {
 
   const fetchUser = async (authToken: string) => {
     try {
-      const res = await fetch("http://localhost:8000/api/v1/auth/me", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/v1/auth/me`, {
         headers: { "Authorization": `Bearer ${authToken}` }
       });
       const data = await res.json();
@@ -123,7 +123,7 @@ export default function Dashboard() {
   const handleCreateTask = async (title: string, priority: string = "MEDIUM") => {
     if (!title.trim() || !token) return;
     try {
-      const res = await fetch("http://localhost:8000/api/v1/tasks/", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/v1/tasks/`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({ title, priority })
@@ -142,7 +142,7 @@ export default function Dashboard() {
     if (!parseText.trim() || !token) return;
     setIsParsing(true);
     try {
-      const res = await fetch("http://localhost:8000/api/v1/ai/parse-task", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/v1/ai/parse-task`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({ user_input: parseText })
@@ -161,7 +161,7 @@ export default function Dashboard() {
     const newStatus = task.status === "DONE" ? "TODO" : "DONE";
     setTasks(tasks.map(t => t.id === task.id ? { ...t, status: newStatus } : t));
     try {
-      await fetch(`http://localhost:8000/api/v1/tasks/${task.id}`, {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/v1/tasks/${task.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({ status: newStatus })
@@ -178,7 +178,7 @@ export default function Dashboard() {
     if (!token) return;
     setTasks(tasks.filter(t => t.id !== taskId));
     try {
-      await fetch(`http://localhost:8000/api/v1/tasks/${taskId}`, {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/v1/tasks/${taskId}`, {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}` }
       });
@@ -450,7 +450,7 @@ export default function Dashboard() {
                          onClick={async () => {
                            if (!token) return;
                            try {
-                             const res = await fetch("http://localhost:8000/api/v1/auth/google/login", {
+                             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/v1/auth/google/login`, {
                                headers: { "Authorization": `Bearer ${token}` }
                              });
                              const data = await res.json();
