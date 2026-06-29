@@ -10,7 +10,7 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 # Note: Since this is a monorepo, we might need to copy the root package.json as well, but for a simple standalone build this is fine.
 # We will use standalone output.
-RUN npm ci
+RUN npm install
 
 # Rebuild the source code only when needed
 FROM base AS builder
