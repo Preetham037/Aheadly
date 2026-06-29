@@ -17,8 +17,8 @@ type VoiceState = "idle" | "listening" | "preview";
 
 declare global {
   interface Window {
-    SpeechRecognition: typeof SpeechRecognition;
-    webkitSpeechRecognition: typeof SpeechRecognition;
+    SpeechRecognition: any;
+    webkitSpeechRecognition: any;
   }
 }
 
@@ -116,7 +116,7 @@ export default function ChatPage() {
   const [analyserNode, setAnalyserNode] = useState<AnalyserNode | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recognitionRef = useRef<any | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const editRef = useRef<HTMLTextAreaElement>(null);
@@ -234,8 +234,8 @@ export default function ChatPage() {
       recognition.continuous = false;
       recognitionRef.current = recognition;
 
-      recognition.onresult = (event) => {
-        const transcript = Array.from(event.results).map(r => r[0].transcript).join("");
+      recognition.onresult = (event: any) => {
+        const transcript = Array.from(event.results).map((r: any) => r[0].transcript).join("");
         setVoiceTranscript(transcript);
       };
 
