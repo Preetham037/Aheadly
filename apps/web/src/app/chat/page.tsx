@@ -159,7 +159,7 @@ export default function ChatPage() {
     setMessages(prev => [...prev, { id: assistantMsgId, role: "assistant", content: "" }]);
     
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://aheadly-api-165892426861.asia-south1.run.app";
       const res = await fetch(`${apiUrl}/api/v1/ai/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },

@@ -33,7 +33,7 @@ export default function NotesPage() {
 
   const fetchNotes = async (authToken: string) => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://aheadly-api-165892426861.asia-south1.run.app";
       const res = await fetch(`${apiUrl}/api/v1/notes/`, {
         headers: { "Authorization": `Bearer ${authToken}` }
       });
@@ -51,7 +51,7 @@ export default function NotesPage() {
   const handleCreateNote = async () => {
     if (!title.trim() || !token) return;
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://aheadly-api-165892426861.asia-south1.run.app";
       const res = await fetch(`${apiUrl}/api/v1/notes/`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
@@ -70,7 +70,7 @@ export default function NotesPage() {
 
   const handleDeleteNote = async (id: string) => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://aheadly-api-165892426861.asia-south1.run.app";
       await fetch(`${apiUrl}/api/v1/notes/${id}`, {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}` }
