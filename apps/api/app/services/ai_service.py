@@ -76,10 +76,18 @@ class AIService:
             """
             return calendar_service.get_free_time_slots(date_str)
 
+        from app.services.gmail_service import gmail_service
+        def check_emails() -> str:
+            """
+            Fetches the top 5 most recent emails from the user's Gmail inbox.
+            Use this when the user asks to check their emails or summarize their inbox.
+            """
+            return gmail_service.fetch_recent_emails(refresh_token)
+
         chat = self.client.chats.create(
             model='gemini-2.5-flash',
             config=types.GenerateContentConfig(
-                tools=[schedule_google_calendar_event, get_free_google_calendar_time],
+                tools=[schedule_google_calendar_event, get_free_google_calendar_time, check_emails],
                 temperature=0.1,
             )
         )

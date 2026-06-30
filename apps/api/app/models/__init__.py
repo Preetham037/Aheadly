@@ -6,3 +6,4 @@ from .notification import Notification
 from .analytics import Analytics
 from .ai_recommendation import AIRecommendation
 from .chat_history import ChatHistory
+from .note import Note

@@ -242,17 +242,40 @@ export default function Dashboard() {
 
       <main className="relative z-10 p-6 md:p-10 max-w-7xl mx-auto space-y-8">
         
+        {tasks.filter(t => t.status !== "DONE" && t.deadline && new Date(t.deadline) < new Date()).length > 0 && (
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center">
+                <Flame className="w-5 h-5 text-red-500" />
+              </div>
+              <div>
+                <h3 className="text-red-400 font-bold">You have missed tasks!</h3>
+                <p className="text-red-400/80 text-sm">
+                  {tasks.filter(t => t.status !== "DONE" && t.deadline && new Date(t.deadline) < new Date()).length} task(s) are past their deadline. Please complete them as soon as possible.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+        
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <h1 className="text-4xl font-bold tracking-tight mb-2">Welcome back.</h1>
             <p className="text-gray-400 text-lg">Here's your productivity overview for today.</p>
           </div>
-          <Link href="/chat">
-             <Button className="bg-white text-black hover:bg-gray-200 rounded-full h-12 px-6 shadow-lg shadow-white/10 font-medium group">
-               <LogoIcon className="w-4 h-4 mr-2 text-purple-600 group-hover:scale-110 transition-transform" />
-               Talk to AI Assistant
-             </Button>
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link href="/notes">
+               <Button variant="outline" className="rounded-full h-12 px-6 border-white/10 text-white hover:bg-white/5 font-medium">
+                 My Notes
+               </Button>
+            </Link>
+            <Link href="/chat">
+               <Button className="bg-white text-black hover:bg-gray-200 rounded-full h-12 px-6 shadow-lg shadow-white/10 font-medium group">
+                 <LogoIcon className="w-4 h-4 mr-2 text-purple-600 group-hover:scale-110 transition-transform" />
+                 Talk to AI Assistant
+               </Button>
+            </Link>
+          </div>
         </motion.div>
 
         <motion.div variants={container} initial="hidden" animate="show" className="grid gap-6 md:grid-cols-3">
@@ -394,8 +417,17 @@ export default function Dashboard() {
                             <Circle className="w-5 h-5" />
                           )}
                         </button>
-                        <span className={`text-sm ${task.status === "DONE" ? 'line-through text-gray-500' : 'font-medium text-gray-200'}`}>
+                        <span className={`text-sm ${
+                          task.status === "DONE" 
+                            ? 'line-through text-gray-500' 
+                            : (task.deadline && new Date(task.deadline) < new Date())
+                              ? 'font-bold text-red-400'
+                              : 'font-medium text-gray-200'
+                        }`}>
                           {task.title}
+                          {task.status !== "DONE" && task.deadline && new Date(task.deadline) < new Date() && (
+                            <span className="ml-2 text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-red-500/20 text-red-500 border border-red-500/30">Missed</span>
+                          )}
                         </span>
                       </div>
                       <div className="flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">

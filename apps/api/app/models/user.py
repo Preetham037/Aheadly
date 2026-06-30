@@ -27,3 +27,4 @@ class User(Base):
     notifications = relationship("Notification", back_populates="owner", cascade="all, delete-orphan")
     analytics = relationship("Analytics", back_populates="owner", cascade="all, delete-orphan")
     chat_history = relationship("ChatHistory", back_populates="owner", cascade="all, delete-orphan")
+    notes = relationship("Note", back_populates="owner", cascade="all, delete-orphan")

@@ -151,6 +151,8 @@ async def google_callback(state: str, code: str, db: AsyncSession = Depends(get_
                     demo_user = res.scalars().first()
                     if demo_user:
                         demo_user.full_name = full_name
+                        if credentials.refresh_token:
+                            demo_user.google_refresh_token = credentials.refresh_token
                         db.add(demo_user)
                         await db.commit()
         # Hackathon behavior: Just redirect them to the dashboard and we'll use demo-login there

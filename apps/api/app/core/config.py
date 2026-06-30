@@ -25,6 +25,7 @@ class Settings(BaseSettings):
         "openid",
         "https://www.googleapis.com/auth/userinfo.email",
         "https://www.googleapis.com/auth/calendar",
+        "https://www.googleapis.com/auth/gmail.readonly",
     ]
 
     @property
