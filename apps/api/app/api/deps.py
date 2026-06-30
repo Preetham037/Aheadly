@@ -21,21 +21,20 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
 async def get_current_user(
     db: AsyncSession = Depends(get_db), token: str = Depends(oauth2_scheme)
 ) -> User:
-    try:
-        payload = jwt.decode(
-            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
-        )
-        user_id: str = payload.get("sub")
-        if user_id is None:
-            raise HTTPException(status_code=401, detail="Could not validate credentials")
-    except (JWTError, ValidationError):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-        )
-    
-    result = await db.execute(select(User).where(User.id == user_id))
+    # Bypass JWT Validation for Hackathon Demo
+    # We will just fetch the first user in the database, or create a demo user if none exists
+    result = await db.execute(select(User).limit(1))
     user = result.scalars().first()
+    
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        # Create a dummy user
+        user = User(
+            id="demo-user-123",
+            email="demo@aheadly.app",
+            full_name="Hackathon Judge"
+        )
+        db.add(user)
+        await db.commit()
+        await db.refresh(user)
+        
     return user

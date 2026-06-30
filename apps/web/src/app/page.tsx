@@ -38,7 +38,7 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-6">
             <Link href="#features" className="text-sm text-gray-400 hover:text-white transition-colors">Features</Link>
-            <Link href="/login">
+            <Link href="/dashboard">
               <Button className="rounded-full bg-white text-black hover:bg-gray-200 font-medium px-6">
                 Go to Dashboard
               </Button>
@@ -210,7 +210,7 @@ export default function Home() {
             <div className="relative z-10">
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">Ready to get ahead?</h2>
               <p className="text-xl text-purple-200/70 mb-10 max-w-xl mx-auto">Join thousands of high-performers who have stopped missing deadlines and started finishing early.</p>
-              <Link href="/login">
+              <Link href="/dashboard">
                 <Button size="lg" className="rounded-full bg-white text-black hover:bg-gray-200 h-14 px-10 text-lg font-medium shadow-2xl">
                   Start Using Aheadly Free
                 </Button>
